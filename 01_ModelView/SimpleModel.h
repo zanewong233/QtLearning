@@ -29,6 +29,13 @@ public:
 	// --- 自定义功能：添加数据 ---
 	void addStudent(const QString& name, int score);
 
+	// --- 进阶：实现编辑功能 ---
+	// 1. 告诉 View 哪些单元格是可以编辑的
+	Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+	// 2. 核心：View 把用户修改的值传回来，你负责更新底层数据
+	bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+
 private:
 	QList<Student> m_data; // 数据源
 };

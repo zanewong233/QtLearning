@@ -29,7 +29,7 @@ QVariant SimpleModel::data(const QModelIndex& index, int role) const
 
 	const Student& s = m_data.at(index.row());
 
-	if (role == Qt::DisplayRole) {
+	if (role == Qt::DisplayRole || role == Qt::EditRole) {
 		switch (index.column()) {
 		case 0: return s.name;
 		case 1: return s.score;
@@ -69,4 +69,55 @@ void SimpleModel::addStudent(const QString& name, int score)
 	m_data.append({ name, score, score >= 60 });
 	// 刷新数据
 	endInsertRows();
+}
+
+Qt::ItemFlags SimpleModel::flags(const QModelIndex& index) const
+{
+	if (!index.isValid())
+		return Qt::NoItemFlags;
+
+	// 获取父类的默认属性 (通常包含 Enabled | Selectable)
+	Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+
+	// 只有“分数”列 (第1列) 允许编辑
+	if (index.column() == 1) {
+		return defaultFlags | Qt::ItemIsEditable; // 加上“可编辑”属性
+	}
+
+	return defaultFlags;
+}
+
+bool SimpleModel::setData(const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/)
+{
+	// 基本校验
+	if (index.isValid() && role == Qt::EditRole) {
+
+		// 获取底层数据的引用 (注意不是 const 引用，因为我们要改它)
+		// m_data 是 QList<Student>
+		Student& s = m_data[index.row()];
+
+		// 根据列号修改对应字段
+		if (index.column() == 1) {
+			bool ok;
+			int newScore = value.toInt(&ok);
+
+			if (ok) {
+				s.score = newScore;
+				s.passed = (newScore >= 60); // 自动联动更新“状态”
+
+				// === 关键点 ===
+				// 数据改完了，必须发射 dataChanged 信号！
+				// 否则 View 虽然看似改了，但可能会立刻变回去，或者其他 View 不会同步。
+				// 参数：左上角索引，右下角索引，改变的角色
+				emit dataChanged(index, index, { Qt::DisplayRole, Qt::ForegroundRole });
+
+				// 还要通知“状态”那一列也刷新（因为及格状态变了）
+				QModelIndex statusIndex = this->index(index.row(), 2);
+				emit dataChanged(statusIndex, statusIndex, { Qt::DisplayRole, Qt::ForegroundRole });
+
+				return true; // 修改成功
+			}
+		}
+	}
+	return false; // 修改失败
 }
