@@ -1,0 +1,66 @@
+# ==========================
+# 1. CMake 构建目录与缓存
+# ==========================
+# CMake 产生的临时构建文件夹 (通常我们会建 build 文件夹)
+/build/
+/cmake-build-*/
+
+# Visual Studio "打开文件夹" 模式默认的输出目录
+/out/
+
+# CMake 缓存与中间文件
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+
+# ==========================
+# 2. Visual Studio (IDE) 生成文件
+# ==========================
+# VS 的配置隐藏文件夹 (非常重要，里面全是本地缓存)
+.vs/
+
+# 通过 CMake 生成的 VS 解决方案与工程文件 (不需要提交，因为可以随时重新生成)
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# 编译产生的二进制与调试文件
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.lib
+*.exp
+/Debug/
+/Release/
+/x64/
+/x86/
+
+# ==========================
+# 3. Qt 特有文件
+# ==========================
+# 如果你手误在源码目录运行了 qmake (虽然你用 cmake，但在防呆)
+*.pro.user
+*.qmake.stash
+.qmake.cache
+
+# Qt 自动生成的源码 (MOC/UIC/RCC)
+# 通常这些在 build 目录里，但为了防止污染源码目录，加上保险
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+Makefile*
+
+# ==========================
+# 4. 本地环境配置 (最重要！)
+# ==========================
+# 存放你 D 盘 Qt 路径的本地配置文件，绝对不能提交！
+CMakeUserPresets.json
+
+# 系统缩略图等垃圾文件
+.DS_Store
+Thumbs.db
