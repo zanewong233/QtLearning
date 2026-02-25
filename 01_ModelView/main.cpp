@@ -4,6 +4,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QHeaderView>
+#include <QSortFilterProxyModel>
 #include "SimpleModel.h"
 
 int main(int argc, char* argv[])
@@ -23,8 +24,15 @@ int main(int argc, char* argv[])
 	// 2. Model
 	SimpleModel* model = new SimpleModel(&window);
 
+	// 创建代理模型用于表格的排序与过滤
+	// View 问 Proxy 要数据，Proxy 根据排序规则把行号映射一下，
+	// 再去问 SourceModel。SourceModel 里的数据其实纹丝未动
+	QSortFilterProxyModel* proxyModel = new QSortFilterProxyModel(&window);
+	proxyModel->setSourceModel(model);
+
 	// 3. Bind
-	tableView->setModel(model);
+	tableView->setModel(proxyModel);
+	tableView->setSortingEnabled(true); // 允许点击表头排序
 
 	// 设置
 	tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
